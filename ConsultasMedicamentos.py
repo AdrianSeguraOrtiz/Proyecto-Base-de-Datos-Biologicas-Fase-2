@@ -208,17 +208,14 @@ try:
 # C15 Find all medicines whose active ingredients have a molecular weight greater than 400.
        
         print("Consulta 15")
-        sql16="""SELECT *
-                 FROM medicamentos med
-                 WHERE med.codigoNacional IN (SELECT MEDICAMENTOS_codigoNacional
-							                  FROM med_tienen_pa
-							                  WHERE PRINCIPIOSACTIVOS_nombre IN (SELECT Nombre
-															                     FROM principios_activos
-                                                                                 WHERE pesoMolecular > 400)
-							                  GROUP BY MEDICAMENTOS_codigoNacional
-							                  HAVING count(MEDICAMENTOS_codigoNacional) = (SELECT count(MEDICAMENTOS_codigoNacional)
-																		                   FROM med_tienen_pa
-																		                   WHERE MEDICAMENTOS_codigoNacional = med.codigoNacional));"""
+        sql15="""SELECT *
+FROM medicamentos med
+WHERE NOT EXISTS (SELECT *
+				 FROM med_tienen_pa mtpa
+				 WHERE med.codigoNacional = mtpa.MEDICAMENTOS_codigoNacional AND 
+                 mtpa.PRINCIPIOSACTIVOS_nombre IN (SELECT Nombre
+													FROM principios_activos
+													WHERE pesoMolecular <= 400));"""
         cursor.execute(sql15)
         print()
         for row in cursor:
@@ -229,7 +226,7 @@ try:
 #C16 Find all Frenadol's active ingredients Muestra los principios activos del medicamento Frenadol Forte
         
         print("Consulta 16")
-        sql13="""SELECT *
+        sql16="""SELECT *
         FROM principios_activos
         WHERE Nombre IN (SELECT PRINCIPIOSACTIVOS_nombre
                          FROM med_tienen_pa

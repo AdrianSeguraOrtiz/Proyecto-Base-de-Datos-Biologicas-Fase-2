@@ -70,15 +70,12 @@ ORDER BY numPrincipiosActivos DESC;
 # Muestra todos los medicamentos cuyos principios activos tengan un peso molecular mayor que 400
 SELECT *
 FROM medicamentos med
-WHERE med.codigoNacional IN (SELECT MEDICAMENTOS_codigoNacional
-							FROM med_tienen_pa
-							WHERE PRINCIPIOSACTIVOS_nombre IN (SELECT Nombre
-															FROM principios_activos
-                                                            WHERE pesoMolecular > 400)
-							GROUP BY MEDICAMENTOS_codigoNacional
-							HAVING count(MEDICAMENTOS_codigoNacional) = (SELECT count(MEDICAMENTOS_codigoNacional)
-																		FROM med_tienen_pa
-																		WHERE MEDICAMENTOS_codigoNacional = med.codigoNacional));
+WHERE NOT EXISTS (SELECT *
+				 FROM med_tienen_pa mtpa
+				 WHERE med.codigoNacional = mtpa.MEDICAMENTOS_codigoNacional AND 
+                 mtpa.PRINCIPIOSACTIVOS_nombre IN (SELECT Nombre
+													FROM principios_activos
+													WHERE pesoMolecular <= 400));
 # Muestra los principios activos del medicamento Frenadol Forte
 SELECT *
 FROM principios_activos
